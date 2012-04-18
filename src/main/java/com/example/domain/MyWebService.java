@@ -2,7 +2,9 @@ package com.example.domain;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import javax.ejb.Stateful;
 import javax.enterprise.context.RequestScoped;
@@ -43,6 +45,15 @@ public class MyWebService {
 				+ facebookID + "]");
 
 		Player foundPlayer = getPlayerByFacebookID(em, facebookID);
+
+		// Whenever we get a player now, we also want to re-generate a game link
+		// for them
+		if (null != foundPlayer) {
+			Link gameLink = generateRandomizedGameLink(em, foundPlayer);
+			foundPlayer.setGameLink(gameLink);
+			em.persist(foundPlayer);
+			System.out.println("Updating Game Link for Player to: " + gameLink);
+		}
 
 		System.out.println("Returning Player: " + foundPlayer);
 		return foundPlayer;
@@ -270,6 +281,67 @@ public class MyWebService {
 		}
 	}// playerRemovalRequest
 
+	// Performs validation on answers submitted, and adjust points.
+	@POST
+	@Path("/GameAnswers/{playerID}/{id1}/{id2}/{id3}/{name1}/{name2}/{name3}")
+	@Consumes("application/json")
+	public String postForAnswers(@PathParam("playerID") long playerID,
+			@PathParam("id1") long id1, @PathParam("id2") long id2,
+			@PathParam("id3") long id3, @PathParam("name1") String name1,
+			@PathParam("name2") String name2, @PathParam("name3") String name3) {
+
+		Player player = getPlayerByFacebookID(em, playerID);
+		User user1 = getUserByFacebookID(em, id1);
+		User user2 = getUserByFacebookID(em, id2);
+		User user3 = getUserByFacebookID(em, id3);
+		if (null == player || null == user1 || null == user2 || null == user3) {
+			// This should never happen, but lets exit gracefully if it somehow
+			// does.
+			return "Sorry, there was an error trying to validate your answers. Please try again.";
+		}
+
+		boolean correctName1 = user1.getName().equals(name1);
+		boolean correctName2 = user2.getName().equals(name2);
+		boolean correctName3 = user3.getName().equals(name3);
+
+		String returnString = "";
+		long pointChange = 0;
+		if (correctName1) {
+			returnString += "First entry was correct \n";
+			pointChange += 10;
+		} else {
+			returnString += "First entry was INCORRECT \n";
+			pointChange -= 10;
+		}
+		if (correctName2) {
+			returnString += "Second entry was correct \n";
+			pointChange += 10;
+		} else {
+			returnString += "Second entry was INCORRECT \n";
+			pointChange -= 10;
+		}
+		if (correctName3) {
+			returnString += "Thrid entry was correct \n";
+			pointChange += 10;
+		} else {
+			returnString += "Third entry was INCORRECT \n";
+			pointChange -= 10;
+		}
+
+		returnString += "You will have a total of [" + Math.abs(pointChange)
+				+ "] points ";
+		if (pointChange > 0) {
+			returnString += "added!";
+		} else {
+			returnString += "deducted.";
+		}
+
+		player.setPoints(player.getPoints() + pointChange);
+		em.persist(player);
+
+		return returnString;
+	}// postForAnswers
+
 	// **************** HELPER FUNCTIONS **********************
 
 	// Return a Player object, or null if no Player exists with
@@ -396,6 +468,79 @@ public class MyWebService {
 
 	public String resolveURL(long facebookID) {
 		return "http://graph.facebook.com/" + facebookID + "/picture";
+	}
+
+	private Link generateRandomizedGameLink(EntityManager em, Player player) {
+		Link outputLink = new Link("", "");
+		ArrayList<Long> friendIDs = player.getFriendList();
+
+		// You need at least 5 friends to play and generate a valid link
+		if (friendIDs.size() <= 4) {
+			outputLink.setHref("index.html");
+			outputLink
+					.setOnClickMethod("(function (){alert('You do not have enough friends to play the game.');return false;});");
+			em.persist(outputLink);
+			return outputLink;
+		}
+
+		Random randomGenerator = new Random();
+		ArrayList<Long> randomFriendIDs = new ArrayList<Long>();
+		ArrayList<User> friendUsers = new ArrayList<User>();
+
+		// Get 5 friendIDs from the list at random
+		for (int index = 0; index <= 4; ++index) {
+
+			// Grab a random integer from 0 to [friendIDs.size() - 1]
+			int randomInt = randomGenerator.nextInt(friendIDs.size());
+
+			// Use randomInt as the index in the friendIDs list as the next
+			// friend to use
+			// Make sure that friend hasn't been used in the link already
+			// though.
+			if (randomFriendIDs.contains(friendIDs.get(randomInt))) {
+				index--; // Repick this gameLink index, the friend's been used
+				// already
+			} else {
+				randomFriendIDs.add(friendIDs.get(randomInt));
+				friendUsers.add(getUserByFacebookID(em,
+						friendIDs.get(randomInt)));
+			}
+		}
+
+		// Now that we have the 5 friends to use, we'll display the images of
+		// the first 3
+		ArrayList<Long> friendImageIDs = new ArrayList<Long>();
+		friendImageIDs.add(randomFriendIDs.get(0));
+		friendImageIDs.add(randomFriendIDs.get(1));
+		friendImageIDs.add(randomFriendIDs.get(2));
+
+		// And re-randomize all 5 names to display at the top to make this a
+		// game
+		Collections.shuffle(friendUsers);
+		ArrayList<String> friendUserNames = new ArrayList<String>();
+		friendUserNames.add(friendUsers.get(0).getName());
+		friendUserNames.add(friendUsers.get(1).getName());
+		friendUserNames.add(friendUsers.get(2).getName());
+		friendUserNames.add(friendUsers.get(3).getName());
+		friendUserNames.add(friendUsers.get(4).getName());
+
+		outputLink.setHref("playGame.html?playerID="
+				+ player.getPlayerInfo().getFacebookID() + "&playerName="
+				+ player.getPlayerInfo().getName() + "&playerPoints="
+				+ player.getPoints() + "&friendIDList="
+				+ printList(friendImageIDs) + "&friendNameList="
+				+ printList(friendUserNames));
+		em.persist(outputLink);
+		em.flush();
+		return outputLink;
+	}
+
+	private String printList(ArrayList list) {
+		String output = "";
+		for (Object object : list) {
+			output += object + ",";
+		}
+		return output.substring(0, output.length() - 1);
 	}
 
 }

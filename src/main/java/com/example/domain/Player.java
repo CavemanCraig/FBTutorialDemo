@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -89,7 +90,7 @@ public class Player implements java.io.Serializable {
 		this.points = points;
 	}
 
-	@Column
+	@Column(length = 100000)
 	private ArrayList<Long> friendList;
 
 	public ArrayList<Long> getFriendList() {
@@ -100,6 +101,18 @@ public class Player implements java.io.Serializable {
 		this.friendList = friendList;
 	}
 
+	@OneToOne
+	@JoinColumn(name = "linkId")
+	private Link gameLink;
+
+	public Link getGameLink() {
+		return this.gameLink;
+	}
+
+	public void setGameLink(final Link gameLink) {
+		this.gameLink = gameLink;
+	}
+
 	public Player() {
 	}
 
@@ -107,6 +120,7 @@ public class Player implements java.io.Serializable {
 		this.playerInfo = playerInfo;
 		this.points = 100; // New users get 100 points to start with
 		this.friendList = new ArrayList<Long>();
+		this.gameLink = null;
 	}
 
 	public String toString() {

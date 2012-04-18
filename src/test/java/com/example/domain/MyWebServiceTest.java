@@ -277,8 +277,8 @@ public class MyWebServiceTest {
 		
 		//Submit 3 incorrect answers to our WebService as a POST request
 		String targetURL = "http://localhost:8080/FBTutorialDemo/rest/webService/GameAnswers/" + 
-				"1005/67890/76543/89012/Four%20Friend/Five%20Friend/One%20Friend";
-		String JSONInput = "";
+				"1005/67890/76543/89012";
+		String JSONInput = "[\"" + "Four Friend" + "\",\"" + "Five Friend" + "\",\"" + "One Friend" + "\"]";
 		String response = TestUtils.doPOST(targetURL, JSONInput);
 		
 		//Test that we get the correct String back from the incorrect answers and our points were deducted
@@ -304,8 +304,8 @@ public class MyWebServiceTest {
 		
 		//Submit 3 correct answers to our WebService as a POST request
 		String targetURL = "http://localhost:8080/FBTutorialDemo/rest/webService/GameAnswers/" +
-				"1005/67890/76543/89012/One%20Friend/Two%20Friend/Three%20Friend";
-		String JSONInput = "";
+				"1005/67890/76543/89012";
+		String JSONInput = "[\"" + "One Friend" + "\",\"" + "Two Friend" + "\",\"" + "Three Friend" + "\"]";
 		String response = TestUtils.doPOST(targetURL, JSONInput);
 		
 		//Test that we get the correct String back from the incorrect answers and our points were deducted
@@ -333,8 +333,8 @@ public class MyWebServiceTest {
 		
 		//Submit 3 blank answers to our WebService as a POST request
 		String targetURL = "http://localhost:8080/"+ appName +"/rest/webService/GameAnswers/" +
-				"1005/67890/76543/89012///";
-		String JSONInput = "";
+				"1005/67890/76543/89012";
+		String JSONInput = "[\"" + "\",\"" + "\",\"" + "\"]";
 		String response = TestUtils.doPOST(targetURL, JSONInput);
 		
 		//Test that we get the correct String back from the blank answers and our points were deducted

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
+   <head>
+       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+       <title>Welcome to Tutorial Demo - The Game</title>
+   </head>
+   <body>
+
+       <!-- <fb:login-button autologoutlink="true" perms="email,user_birthday,status_update,publish_stream"></fb:login-button></p>
+-->
+       <fb:login-button autologoutlink="true">
+       </fb:login-button>
+
+       <center>
+       <H1>Welcome to Tutorial Demo - The Game</H1><P /><BR />
+       <TABLE>
+            <TR width='100%'><TD width='75%' align='center' colspan="3"><div id='Name'></div></TD><TD width='25%' align='center'><div id='Points'></div></TD></TR>
+<TR><TD><P /></TD></TR>
+            <TR><TD colspan="5"><HR /></TD></TR>
+<TR><TD width='100%' colspan="5">Possible Names:</TD></TR>
+            <TR><TD width='20%' colspan="1"><div id='possibleName1'></div></TD>
+                <TD width='20%' colspan="1"><div id='possibleName2'></div></TD>
+                <TD width='20%' colspan="1"><div id='possibleName3'></div></TD>
+                <TD width='20%' colspan="1"><div id='possibleName4'></div></TD>
+                <TD width='20%' colspan="1"><div id='possibleName5'></div></TD>
+            </TR>
+<TR><TD colspan="5"><HR /></TD></TR>
+            <TR><TD colspan="2" align='center'><img src="favicon.ico" id='inputPic1'></TD><TD colspan="3" align='center'><input type="text" id="inputName1"/></TD></TR>
+            <TR><TD colspan="2" align='center'><img src="favicon.ico" id='inputPic2'></TD><TD colspan="3" align='center'><input type="text" id="inputName2"/></TD></TR>
+            <TR><TD colspan="2" align='center'><img src="favicon.ico" id='inputPic3'></TD><TD colspan="3" align='center'><input type="text" id="inputName3"/></TD></TR>
+            <TR><TD colspan="5"><HR /></TD></TR>
+<TR><TD align='center' colspan="5"><input type="submit" value="Submit" onClick='submitAnswers()'/></TD></TR>
+        </TABLE>
+        <div id='submitMessage'></div>
+        <a href='index.html'>Go back to main page</a><BR />
+
+<!-- Hidden divs to keep track of the actual Friend IDs in the pictures -->
+<div id='friendID1'></div>
+<div id='friendID2'></div>
+<div id='friendID3'></div>
+
+        </center>
+
+
+
+        <script type="text/javascript">
+           
+
+        /****** Change me to “true” if running on localhost,
+Change me to “false if running on Facebook. ******/
+            var isLocal = window.location.href.indexOf("localhost") != -1;
+            var isDEBUG = false; //Print out debug statements to concole
+
+
+            function doPostAnswers(playerID, ID1, ID2, ID3, JSONInput){
+             	var POSTAnswersURL = "rest/webService/GameAnswers/" + playerID + "/" +
+                    ID1 + "/" + ID2 + "/" + ID3;
+                var myObj = null;
+                var xmlhttp = null;
+                if (window.XMLHttpRequest) {
+                  	xmlhttp = new XMLHttpRequest();
+                  	if ( typeof xmlhttp.overrideMimeType != 'undefined') {
+                    	xmlhttp.overrideMimeType('application/json');
+                  	}
+                } else if (window.ActiveXObject) {
+                  	xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                } else {
+                  	alert('Your browser does not support xmlhttprequests. Sorry.');
+                }
+   
+                xmlhttp.open('POST', POSTAnswersURL, false);
+                xmlhttp.setRequestHeader('Content-Type', 'application/json');
+                xmlhttp.send(JSONInput);
+                alert(xmlhttp.responseText);
+                window.location='index.html';
+   
+                xmlhttp.onreadystatechange = function() {
+                      if (xmlhttp.readyState == 4) {
+                          if(xmlhttp.status == 200) {
+                              //myObj = eval ( '(' + xmlhttp.responseText + ')' );
+                              if(isDEBUG){
+                                  alert("POST Success");
+                                }
+                              //alert(xmlhttp.responseText);
+                              document.getElementById('submitMessage').innerHTML = xmlhttp.responseText;
+                          }
+                          else {
+                              if(isDEBUG){alert("POST Fail - status: " + xmlhttp.status + " - " + xmlhttp.responseText);}
+                          }
+                      } else {
+                          // wait for the call to complete
+                      }
+              	};
+                return null;
+           	}
+
+
+function getURLParam( varname ) {
+varname = varname.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+         var regexS = "[\\?&]"+varname+"=([^&#]*)";
+         var regex = new RegExp( regexS );
+         var results = regex.exec( window.location.href );
+         if( results == null ) return ""; else return results[1].split("%20").join(" ");
+}
+
+            function convertStringToList(stringList, delim)
+            {
+                var element = "";
+                var objList = new Array();
+                for (var j=0; j< stringList.length; j++) {
+                    if (stringList[j] != delim) {
+                        element += stringList[j];
+                    }
+                    else{
+                        objList.push(element);
+                        element = "";
+                   }
+                }
+                objList.push(element);
+                return objList;
+            }
+
+
+            function submitAnswers(){
+                var playerID = getURLParam("playerID");
+                var ID1 = document.getElementById('friendID1').innerHTML;
+                var ID2 = document.getElementById('friendID2').innerHTML;
+                var ID3 = document.getElementById('friendID3').innerHTML;
+                var name1 = document.getElementById('inputName1').value;
+                var name2 = document.getElementById('inputName2').value;
+                var name3 = document.getElementById('inputName3').value;
+				var JSONInput = "[\"" + name1 + "\",\"" + name2 + "\",\"" + name3 + "\"]";
+                doPostAnswers(playerID, ID1, ID2, ID3, JSONInput);
+            }
+
+            //Execute this code to display Info on the Player
+            var PlayerID = getURLParam("playerID");
+var PlayerName = getURLParam("playerName");
+var PlayerPoints = getURLParam("playerPoints");
+            document.getElementById("Name").innerHTML = PlayerName;
+            document.getElementById("Points").innerHTML = "Point total: " + PlayerPoints;
+           
+//Get the list of the 3 Friend IDs whose images we need to guess
+            var friendIDListString = getURLParam("friendIDList");
+            var friendIDList = convertStringToList(friendIDListString, ",");
+for (var j=0; j<3; j++){
+var imageURL = "http://graph.facebook.com/" + friendIDList[j] + "/picture";
+var imageSlot = "inputPic" + (j+1);
+var friendIDSlot = "friendID" + (j+1);
+document.getElementById(imageSlot).src = imageURL;
+document.getElementById(friendIDSlot).innerHTML = friendIDList[j];
+
+//We don't want to actually show the ID, just print it so we can use it for sending to the Web Service
+document.getElementById(friendIDSlot).style.display = "none";
+}
+
+//Get the list of the 5 Friend Names we will guess from
+var friendNameListString = getURLParam("friendNameList");
+var friendNameList = convertStringToList(friendNameListString, ",");
+for (var x=0; x<5; x++){
+var possibleNameSlot = "possibleName" + (x+1);
+document.getElementById(possibleNameSlot).innerHTML = friendNameList[x];
+}
+
+       </script>
+       
+</body>
+</html>

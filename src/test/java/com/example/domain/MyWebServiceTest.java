@@ -2,6 +2,7 @@ package com.example.domain;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import javax.inject.Inject;
 
@@ -157,6 +158,115 @@ public class MyWebServiceTest {
 	@Test
 	public void testIsDeployed() {
 		Assert.assertNotNull(mywebservice);
+	}
+	
+	@Test
+	public void testGameLinkForNotEnoughFriends(){
+    	Player playerWith0Friends = TestUtils.getPlayer(1000);
+		
+		//Test that the Player has 0 friends and has the correct link.
+		String expectedOnCLickMethod = 
+			"(function (){alert('You do not have enough friends to play the game.');return false;});";
+		Assert.assertTrue(playerWith0Friends.getFriendList().size()==0);
+		Assert.assertTrue(playerWith0Friends.getGameLink(). getOnClickMethod().equals(expectedOnCLickMethod));
+		Assert.assertTrue(playerWith0Friends.getGameLink(). getHref().equals("index.html"));
+		
+		Player playerWith4Friends = TestUtils.getPlayer(1004);
+		
+		//Test that the Player with 4 friends also has the correct link.
+		Assert.assertTrue(playerWith4Friends.getFriendList().size()==4);
+	    Assert.assertTrue(playerWith4Friends.getGameLink(). getOnClickMethod().equals(expectedOnCLickMethod));
+		Assert.assertTrue(playerWith4Friends.getGameLink() .getHref().equals("index.html"));
+	}
+
+
+	
+	@Test
+	public void testGameLinkForValidNumOfFriends(){
+    	Player playerWith5Friends = TestUtils.getPlayer(1005);
+		
+		//Test that the Player has 5 friends and has the correct link.
+		String expectedHrefBeginning = "playGame.html?playerID="
+				+ playerWith5Friends.getPlayerInfo().getFacebookID() + "&playerName="
+				+ playerWith5Friends.getPlayerInfo().getName() + "&playerPoints="
+				+ playerWith5Friends.getPoints() + "&friendIDList=";
+		Assert.assertTrue(playerWith5Friends.getFriendList().size()==5);
+		Assert.assertTrue(playerWith5Friends.getGameLink().getOnClickMethod().equals(""));
+		Assert.assertTrue(playerWith5Friends.getGameLink().getHref().startsWith(expectedHrefBeginning));
+		
+		//Since the friendIDList and friendNameList passed in the GameLink.Href are random,
+		//we can't validate them in any simple manner.  However, we can verify that our
+		//requirements are still in working order.  We need to make sure that the names
+		//that go with all 3 friendIDList entries are among the 5 friendNameList entries
+		Assert.assertTrue(isValidGameLinkLists(expectedHrefBeginning, playerWith5Friends));
+		
+		
+		Player playerWith10Friends = TestUtils.getPlayer(1010);
+		expectedHrefBeginning = "playGame.html?playerID="
+				+ playerWith10Friends.getPlayerInfo().getFacebookID() + "&playerName="
+				+ playerWith10Friends.getPlayerInfo().getName() + "&playerPoints="
+				+ playerWith10Friends.getPoints() + "&friendIDList=";
+		
+		//Test that the Player with 10 friends also has a correct link.
+		Assert.assertTrue(playerWith10Friends.getFriendList().size()==10);
+		Assert.assertTrue(playerWith10Friends.getGameLink().getOnClickMethod().equals(""));
+		Assert.assertTrue(playerWith10Friends.getGameLink().getHref().startsWith(expectedHrefBeginning));
+		Assert.assertTrue(isValidGameLinkLists(expectedHrefBeginning, playerWith10Friends));
+	}
+    
+	private boolean isValidGameLinkLists(String HrefBeginning, Player player){
+		//Parse the player's GameLink to get the friendIDList and friendNameList
+		int friendIDStart = HrefBeginning.length();
+		int friendIDEnd = player.getGameLink().getHref().indexOf("&friendNameList=");
+		String friendIDs = player.getGameLink().getHref().substring(friendIDStart, friendIDEnd);
+		int friendNameStart = player.getGameLink().getHref().indexOf("friendNameList=") + 15; //we need to add len("friendNameList=")
+		String friendNames = player.getGameLink().getHref().substring(friendNameStart);
+
+		ArrayList<String> friendIDList = getListFromString(friendIDs);
+		ArrayList<String> friendNamesList = getListFromString(friendNames);
+		for (String friendID : friendIDList) {
+			//Check that each friendID matches to a name in the friendNameList
+			
+			User curUser = TestUtils.getUser(Long.valueOf(friendID));
+			if(curUser==null){
+				System.out.println("No User found in DB for ID: " + friendID);
+				return false;
+			}
+			else {
+				if(userNameInList(curUser, friendNamesList) == false){
+					System.out.println(curUser.getName() + ", ID [" + friendID + 
+							"was not  in the friendNamesList");
+					return false;
+				}
+			}
+			
+			//Ensure each friendID is a member of the player's friendList
+			if(player.getFriendList().contains(Long.valueOf(friendID)) == false){
+				System.out.println("ID [" + friendID + "] is not among the players friendlist"
+						+ player.getFriendList());
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean userNameInList(User user, ArrayList<String> friendNamesList){
+		String curName = user.getName();
+		for (String friendName : friendNamesList) {
+			if(curName.equals(friendName)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public ArrayList<String> getListFromString(String text){
+		 ArrayList<String> list = new ArrayList<String>();
+	     StringTokenizer tokens = new StringTokenizer(text,",");
+	     while(tokens.hasMoreTokens()){
+	    	 list.add((String) tokens.nextElement());
+	     }
+	     return list;
 	}
 
 }

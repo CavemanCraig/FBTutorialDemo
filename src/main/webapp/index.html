@@ -1,9 +1,45 @@
-<html>
-	<body>
-		<center>
-		<H1>Welcome</H1>
-		<P/>
-		<H3>To Tutorial Demo</H3>
-		</center>
-	</body>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:fb="http://www.facebook.com/2008/fbml">
+   <head>
+       <meta http-equiv="Content-Type"
+             content="text/html; charset=UTF-8"/>
+       <title>Welcome to Tutorial Demo</title>
+   </head>
+   <body>
+
+        <!-- <fb:login-button autologoutlink="true"
+perms="email,status_update,publish_stream">
+</fb:login-button></p>
+-->
+       <fb:login-button autologoutlink="true">
+       </fb:login-button>
+
+       <div id="fb-root"></div>
+       <script type="text/javascript">
+           window.fbAsyncInit = function() {
+               FB.init({appId: '244754992228365',
+                  status: true,
+                  cookie: true,
+                  xfbml: true});
+            };
+           (function() {
+               var e = document.createElement('script');
+               e.type = 'text/javascript';
+               e.src = document.location.protocol +
+                   '//connect.facebook.net/en_US/all.js';
+               e.async = true;
+               document.getElementById('fb-root')
+                                      .appendChild(e);
+           }());
+       </script>
+       
+       <center>
+       <H1>Welcome to Tutorial Demo</H1><P /><BR />
+       <a href='myInfo.html'>Get Your Info Here</a><BR />
+       <a href='friendsInfo.html'>
+                Get Your Friends Info Here</a>
+       </center>
+       
+</body>
 </html>

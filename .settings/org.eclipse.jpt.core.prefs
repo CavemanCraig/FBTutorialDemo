@@ -1,0 +1,4 @@
+#Wed Apr 18 17:52:42 EDT 2012
+eclipse.preferences.version=1
+org.eclipse.jpt.core.platform=hibernate2_0
+org.eclipse.jpt.jpa.core.discoverAnnotatedClasses=true

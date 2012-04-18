@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+<rootpath>/rest</rootpath>
+<forge>
+<openshift>
+<express>
+<NAME>FBTutorialDemo</NAME>
+</express>
+</openshift>
+</forge>
+</configuration>

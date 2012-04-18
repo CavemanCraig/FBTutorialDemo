@@ -1,29 +1,32 @@
 package com.example.domain;
 
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.io.Serializable;
-import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Column;
+import javax.persistence.Id;
 import javax.persistence.Version;
-import java.lang.Override;@Entity public class User implements java.io.Serializable {
+
+@Entity
+public class User implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	private @GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id", updatable = false, nullable = false)
-	Long id = null;
+	@Column(name = "userId", updatable = false, nullable = false, unique = true)
+	Long userId = null;
+
 	@Version
 	private @Column(name = "version")
 	int version = 0;
 
-	public Long getId() {
-		return this.id;
+	public Long getuserId() {
+		return this.userId;
 	}
 
-	public void setId(final Long id) {
-		this.id = id;
+	public void setuserId(final Long userId) {
+		this.userId = userId;
 	}
 
 	public int getVersion() {
@@ -45,16 +48,16 @@ import java.lang.Override;@Entity public class User implements java.io.Serializa
 		if (getClass() != that.getClass()) {
 			return false;
 		}
-		if (id != null) {
-			return id.equals(((User) that).id);
+		if (userId != null) {
+			return userId.equals(((User) that).userId);
 		}
 		return super.equals(that);
 	}
 
 	@Override
 	public int hashCode() {
-		if (id != null) {
-			return id.hashCode();
+		if (userId != null) {
+			return userId.hashCode();
 		}
 		return super.hashCode();
 	}
@@ -92,12 +95,16 @@ import java.lang.Override;@Entity public class User implements java.io.Serializa
 		this.imageURL = imageURL;
 	}
 
+	public User(long facebookID, String name, String imageURL) {
+		this.facebookID = facebookID;
+		this.name = name;
+		this.imageURL = imageURL;
+	}
+
+	public User() {
+	}
+
 	public String toString() {
-		String result = "";
-		result += facebookID;
-		if (name != null && !name.trim().isEmpty())
-			result += " " + name;
-		if (imageURL != null && !imageURL.trim().isEmpty())
-			result += " " + imageURL;
-		return result;
-	} }
+		return "" + facebookID + ", " + name + ", " + imageURL;
+	}
+}

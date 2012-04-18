@@ -1,22 +1,26 @@
 package com.example.domain;
 
+import java.util.ArrayList;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.io.Serializable;
-import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Column;
-import javax.persistence.Version;
-import java.lang.Override;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import com.example.domain.User;
-import java.util.ArrayList;@Entity public class Player implements java.io.Serializable {
+import javax.persistence.Version;
+
+@Entity
+public class Player implements java.io.Serializable {
+
+	private static final long serialVersionUID = 7884292690096443611L;
 
 	@Id
 	private @GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id", updatable = false, nullable = false)
 	Long id = null;
+
 	@Version
 	private @Column(name = "version")
 	int version = 0;
@@ -63,14 +67,15 @@ import java.util.ArrayList;@Entity public class Player implements java.io.Serial
 	}
 
 	@OneToOne
-	private User user;
+	@JoinColumn(name = "userId")
+	private User playerInfo;
 
-	public User getUser() {
-		return this.user;
+	public User getPlayerInfo() {
+		return this.playerInfo;
 	}
 
-	public void setUser(final User user) {
-		this.user = user;
+	public void setPlayerInfo(final User playerInfo) {
+		this.playerInfo = playerInfo;
 	}
 
 	@Column
@@ -85,18 +90,27 @@ import java.util.ArrayList;@Entity public class Player implements java.io.Serial
 	}
 
 	@Column
-	private ArrayList friendList;
+	private ArrayList<Long> friendList;
 
-	public ArrayList getFriendList() {
+	public ArrayList<Long> getFriendList() {
 		return this.friendList;
 	}
 
-	public void setFriendList(final ArrayList friendList) {
+	public void setFriendList(final ArrayList<Long> friendList) {
 		this.friendList = friendList;
 	}
 
+	public Player() {
+	}
+
+	public Player(User playerInfo) {
+		this.playerInfo = playerInfo;
+		this.points = 100; // New users get 100 points to start with
+		this.friendList = new ArrayList<Long>();
+	}
+
 	public String toString() {
-		String result = "";
-		result += points;
-		return result;
-	} }
+		return playerInfo.getName() + ", " + points + ", FrindIDs: ["
+				+ friendList + "]";
+	}
+}

@@ -1,5 +1,7 @@
 package com.example.domain;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -29,5 +31,29 @@ public class PlayerTest {
     public void testIsDeployed() {
         Assert.assertNotNull(myWebService);
     }
-    
+
+    @Test
+    public void testPlayerInContainer(){
+    	ArrayList<String> friendIDList = new ArrayList<String>();
+		friendIDList.add("newArray");
+		friendIDList.add("67890");
+		friendIDList.add("newArray");
+		friendIDList.add("One Friend");
+		Player player = myWebService.playerPOSTRequest(999, "Ima Player", friendIDList);
+		User user = myWebService.getUser(67890);
+		
+		//Asserts after POST
+		Assert.assertTrue(player.getFriendList().size()==1);
+		Assert.assertTrue(player.getPlayerInfo().getName().equals("Ima Player"));
+		Assert.assertTrue(user.getImageURL().equals(myWebService.resolveURL(67890)));
+		
+		long points = myWebService.getPlayerPoints(999);
+		
+		//Assert after GET
+		Assert.assertTrue(points==100);
+		
+		//Remove the Player and make sure it happened
+		String result = myWebService.playerRemovalRequest(999);
+		Assert.assertTrue(result.equals("Player removed with FacbookID: 999"));
+    }
 }

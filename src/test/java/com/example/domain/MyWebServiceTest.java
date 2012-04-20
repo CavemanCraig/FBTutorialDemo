@@ -127,8 +127,6 @@ public class MyWebServiceTest {
 		response = TestUtils.removePlayer(baseContext, 1010);
 		Assert.assertTrue(response
 				.equals("Player removed with FacbookID: 1010"));
-		
-		System.out.println("\n\n\n\n\n\n\n\nbaseContext: " + baseContext);
 	}
 
 	@Test
@@ -292,7 +290,6 @@ public class MyWebServiceTest {
 		Assert.assertTrue(response.equals(expectedResponse));
 		Assert.assertTrue(playerWith5Friends.getPoints()==(playerPointsOriginal - 30));
 	}
-	
 
 	@Test
 	public void testSubmitAllCorrectAnswers(){
@@ -318,6 +315,38 @@ public class MyWebServiceTest {
 		playerWith5Friends = TestUtils.getPlayer(baseContext, 1005);
 		Assert.assertTrue(response.equals(expectedResponse));
 		Assert.assertTrue(playerWith5Friends.getPoints()==(playerPointsOriginal + 30));
+	}
+	
+	
+	
+	@Test
+	public void testSubmitAllBlankAnswers(){
+		String appName = "FBTutorialDemo";
+		Player playerWith5Friends = TestUtils.getPlayer(baseContext, 1005);
+		
+		//Take note of the player's points before they submit the blank answers
+		long playerPointsOriginal = playerWith5Friends.getPoints();
+		
+		//Submit 3 blank answers to our WebService as a POST request
+		String targetURL = baseContext + "rest/webService/GameAnswers/" +
+				"1005/67890/76543/89012///";
+		String JSONInput = "";
+		String response = TestUtils.doPOST(targetURL, JSONInput);
+		
+		//Test that we get the correct String back from the blank answers and our points were deducted
+		String expectedResponse = "First entry was INCORRECT "
+				+ "Second entry was INCORRECT "
+				+ "Third entry was INCORRECT "
+				+ "You will have a total of [" + 30
+				+ "] points deducted.";
+		
+		System.out.println("\n\n\n\n\n\n response: " + response);
+		System.out.println("\n\n\n\n\n\n");
+
+		//Re-GET the player now that the score should be updated
+		playerWith5Friends = TestUtils.getPlayer(baseContext, 1005);
+		Assert.assertTrue(response.equals(expectedResponse));
+		Assert.assertTrue(playerWith5Friends.getPoints()==(playerPointsOriginal - 30));
 	}
 	
 }

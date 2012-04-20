@@ -52,34 +52,36 @@ Change me to “false if running on Facebook. ******/
             var isDEBUG = false; //Print out debug statements to concole
 
 
-            function doPostAnswers(playerID, ID1, ID2, ID3, name1, name2, name3){
-               var POSTAnswersURL = "rest/webService/GameAnswers/" + playerID + "/" +
-                    ID1 + "/" + ID2 + "/" + ID3 + "/" + name1 + "/" + name2 + "/" + name3;
+            function doPostAnswers(playerID, ID1, ID2, ID3, JSONInput){
+             	var POSTAnswersURL = "rest/webService/GameAnswers/" + playerID + "/" +
+                    ID1 + "/" + ID2 + "/" + ID3;
                 var myObj = null;
                 var xmlhttp = null;
                 if (window.XMLHttpRequest) {
-                   xmlhttp = new XMLHttpRequest();
-                   if ( typeof xmlhttp.overrideMimeType != 'undefined') {
-                     xmlhttp.overrideMimeType('application/json');
-                   }
+                  	xmlhttp = new XMLHttpRequest();
+                  	if ( typeof xmlhttp.overrideMimeType != 'undefined') {
+                    	xmlhttp.overrideMimeType('application/json');
+                  	}
                 } else if (window.ActiveXObject) {
-                   xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                  	xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
                 } else {
-                   alert('Your browser does not support xmlhttprequests. Sorry.');
+                  	alert('Your browser does not support xmlhttprequests. Sorry.');
                 }
    
                 xmlhttp.open('POST', POSTAnswersURL, false);
                 xmlhttp.setRequestHeader('Content-Type', 'application/json');
-                xmlhttp.send();
+                xmlhttp.send(JSONInput);
                 alert(xmlhttp.responseText);
                 window.location='index.html';
    
                 xmlhttp.onreadystatechange = function() {
                       if (xmlhttp.readyState == 4) {
                           if(xmlhttp.status == 200) {
+                              //myObj = eval ( '(' + xmlhttp.responseText + ')' );
                               if(isDEBUG){
                                   alert("POST Success");
-                              }
+                                }
+                              //alert(xmlhttp.responseText);
                               document.getElementById('submitMessage').innerHTML = xmlhttp.responseText;
                           }
                           else {
@@ -88,9 +90,9 @@ Change me to “false if running on Facebook. ******/
                       } else {
                           // wait for the call to complete
                       }
-               };
+              	};
                 return null;
-            }
+           	}
 
 
 function getURLParam( varname ) {
@@ -127,7 +129,8 @@ varname = varname.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
                 var name1 = document.getElementById('inputName1').value;
                 var name2 = document.getElementById('inputName2').value;
                 var name3 = document.getElementById('inputName3').value;
-                doPostAnswers(playerID, ID1, ID2, ID3, name1, name2, name3);
+				var JSONInput = "[\"" + name1 + "\",\"" + name2 + "\",\"" + name3 + "\"]";
+                doPostAnswers(playerID, ID1, ID2, ID3, JSONInput);
             }
 
             //Execute this code to display Info on the Player

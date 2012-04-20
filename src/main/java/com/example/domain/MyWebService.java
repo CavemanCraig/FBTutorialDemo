@@ -282,65 +282,76 @@ public class MyWebService {
 	}// playerRemovalRequest
 
 	// Performs validation on answers submitted, and adjust points.
-	@POST
-	@Path("/GameAnswers/{playerID}/{id1}/{id2}/{id3}/{name1}/{name2}/{name3}")
-	@Consumes("application/json")
-	public String postForAnswers(@PathParam("playerID") long playerID,
-			@PathParam("id1") long id1, @PathParam("id2") long id2,
-			@PathParam("id3") long id3, @PathParam("name1") String name1,
-			@PathParam("name2") String name2, @PathParam("name3") String name3) {
+		@POST
+		@Path("/GameAnswers/{playerID}/{id1}/{id2}/{id3}")
+		@Consumes("application/json")
+		public String postForAnswers(@PathParam("playerID") long playerID,
+				@PathParam("id1") long id1, @PathParam("id2") long id2,
+				@PathParam("id3") long id3, ArrayList<String> JsonInput) {
 
-		Player player = getPlayerByFacebookID(em, playerID);
-		User user1 = getUserByFacebookID(em, id1);
-		User user2 = getUserByFacebookID(em, id2);
-		User user3 = getUserByFacebookID(em, id3);
-		if (null == player || null == user1 || null == user2 || null == user3) {
-			// This should never happen, but lets exit gracefully if it somehow
-			// does.
-			return "Sorry, there was an error trying to validate your answers. Please try again.";
-		}
+			Player player = getPlayerByFacebookID(em, playerID);
+			User user1 = getUserByFacebookID(em, id1);
+			User user2 = getUserByFacebookID(em, id2);
+			User user3 = getUserByFacebookID(em, id3);
+			String name1 = "";
+			String name2 = "";
+			String name3 = "";
+			if (null == player || null == user1 || null == user2 || null == user3) {
+				// This should never happen, but lets exit gracefully if it somehow
+				// does.
+				return "Sorry, there was an error trying to validate your answers. Please try again.";
+			}
+			if(JsonInput.size()!=3){
+				//This needs to be the 3 names the Player is guessing
+				return "Sorry, we couldn't understand your 3 guesses.  Please try again";
+			}
+			else {
+				name1 = JsonInput.get(0);
+				name2 = JsonInput.get(1);
+				name3 = JsonInput.get(2);
+			}
 
-		boolean correctName1 = user1.getName().equals(name1);
-		boolean correctName2 = user2.getName().equals(name2);
-		boolean correctName3 = user3.getName().equals(name3);
+			boolean correctName1 = user1.getName().equals(name1);
+			boolean correctName2 = user2.getName().equals(name2);
+			boolean correctName3 = user3.getName().equals(name3);
 
-		String returnString = "";
-		long pointChange = 0;
-		if (correctName1) {
-			returnString += "First entry was correct \n";
-			pointChange += 10;
-		} else {
-			returnString += "First entry was INCORRECT \n";
-			pointChange -= 10;
-		}
-		if (correctName2) {
-			returnString += "Second entry was correct \n";
-			pointChange += 10;
-		} else {
-			returnString += "Second entry was INCORRECT \n";
-			pointChange -= 10;
-		}
-		if (correctName3) {
-			returnString += "Thrid entry was correct \n";
-			pointChange += 10;
-		} else {
-			returnString += "Third entry was INCORRECT \n";
-			pointChange -= 10;
-		}
+			String returnString = "";
+			long pointChange = 0;
+			if (correctName1) {
+				returnString += "First entry was correct \n";
+				pointChange += 10;
+			} else {
+				returnString += "First entry was INCORRECT \n";
+				pointChange -= 10;
+			}
+			if (correctName2) {
+				returnString += "Second entry was correct \n";
+				pointChange += 10;
+			} else {
+				returnString += "Second entry was INCORRECT \n";
+				pointChange -= 10;
+			}
+			if (correctName3) {
+				returnString += "Thrid entry was correct \n";
+				pointChange += 10;
+			} else {
+				returnString += "Third entry was INCORRECT \n";
+				pointChange -= 10;
+			}
 
-		returnString += "You will have a total of [" + Math.abs(pointChange)
-				+ "] points ";
-		if (pointChange > 0) {
-			returnString += "added!";
-		} else {
-			returnString += "deducted.";
-		}
+			returnString += "You will have a total of [" + Math.abs(pointChange)
+					+ "] points ";
+			if (pointChange > 0) {
+				returnString += "added!";
+			} else {
+				returnString += "deducted.";
+			}
 
-		player.setPoints(player.getPoints() + pointChange);
-		em.persist(player);
+			player.setPoints(player.getPoints() + pointChange);
+			em.persist(player);
 
-		return returnString;
-	}// postForAnswers
+			return returnString;
+		}// postForAnswers
 
 	// **************** HELPER FUNCTIONS **********************
 

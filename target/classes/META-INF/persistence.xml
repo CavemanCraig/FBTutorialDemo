@@ -6,10 +6,10 @@
     <jta-data-source>java:jboss/datasources/MysqlDS</jta-data-source>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
-      	<!--create-drop will wipe out your data at each app-server restart.
-			Set it to update to have your data persist even after uploading app changes.
-			Or leave it as-is if you always want a fresh database each time you start the app.
-		-->
+       <!--create-drop will wipe out your data at each app-server restart.
+		   Set it to update to have your data persist even after uploading app changes.
+		   Or leave it as-is if you always want a fresh database each time you start the app.
+	  -->
       <property name="hibernate.hbm2ddl.auto" value="update"/>
       <property name="hibernate.show_sql" value="true"/>
       <property name="hibernate.format_sql" value="true"/>

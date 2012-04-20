@@ -10,5 +10,6 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/home/fife/StepsToReplicateGitHub/12 - Creating setup() and tearDown()/Archive/gson-2.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
